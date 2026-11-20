@@ -16,8 +16,7 @@ CARPETA_DOCS.mkdir(parents=True, exist_ok=True)                 # se crean solas
 # ---------- Administradores ----------
 # SOLO estas dos personas pueden crear una cuenta de administrador.
 ADMINS_AUTORIZADOS = ["Santiago Muñoz", "Nicole Ramirez"]
-# Código secreto que piden al registrarse. CÁMBIALO antes de usar la plataforma de verdad.
-# Lo mejor es definirlo como variable de entorno:  MERAKIE_CODIGO_ADMIN=mi-codigo-largo
+MERAKIE_CODIGO_ADMIN=mi-codigo-largo
 CODIGO_ADMIN = os.environ.get("MERAKIE_CODIGO_ADMIN", "MERAKIE-ADMIN-2026")
 
 # ---------- Reglas del negocio ----------

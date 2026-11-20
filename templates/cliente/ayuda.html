@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}Ayuda / PQR{% endblock %}
+{% block contenido %}
+<h2>Peticiones, quejas y reclamos</h2><p class="suave">Cuéntanos si algo no salió bien o si necesitas algo. Un administrador revisará tu solicitud.</p>
+<div class="rejilla">
+  <div class="tarjeta"><h3>Nueva solicitud</h3>
+    <form method="post" class="form"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <label>Tipo<select name="tipo">{% for t in tipos %}<option>{{ t }}</option>{% endfor %}</select></label>
+      <label>Compra relacionada (opcional)<select name="pedido_id"><option value="">— Ninguna —</option>{% for p in mis_pedidos %}<option value="{{ p.id }}">Pedido #{{ p.id }} · {{ p.total|pesos }}</option>{% endfor %}</select></label>
+      <label>Asunto<input name="asunto" required maxlength="100"></label>
+      <label>Detalle<textarea name="mensaje" rows="4" required maxlength="1000"></textarea></label>
+      <button class="primario">Enviar</button></form></div>
+  <div class="tarjeta"><h3>Mis solicitudes</h3>
+    {% for q in quejas %}<p><span class="insignia">{{ q.tipo }}</span> <span class="insignia {{ q.estado|estado_clase }}">{{ q.estado }}</span><br><b>{{ q.asunto }}</b>
+      <span class="chico suave">· {{ q.creado|fecha }}</span>{% if q.respuesta %}<br><span class="chico"><b>Respuesta:</b> {{ q.respuesta }}</span>{% endif %}</p>
+    {% else %}<p class="suave">Aún no has enviado solicitudes.</p>{% endfor %}</div>
+</div>
+{% endblock %}

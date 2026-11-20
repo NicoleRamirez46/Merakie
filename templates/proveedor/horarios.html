@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titulo %}Horarios{% endblock %}
+{% block contenido %}
+<h2>Horarios</h2><p class="suave">Las citas se ofrecen cada 30 minutos dentro de tu horario, según la duración de cada servicio.</p>
+<div class="tarjeta"><form method="post" action="{{ url_for('proveedor.guardar_horarios') }}" class="form"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  {% for d in orden %}{% set h = filas[d] %}
+  <div class="dos" style="align-items:center"><label class="check"><input type="checkbox" name="cerrado_{{ d }}" {{ 'checked' if h.cerrado }}> <b>{{ nombres[d] }}</b> · cerrado</label>
+    <div class="dos"><input type="time" name="abre_{{ d }}" value="{{ h.abre }}"><input type="time" name="cierra_{{ d }}" value="{{ h.cierra }}"></div></div>{% endfor %}
+  <button class="primario">Guardar horario</button></form></div>
+<div class="tarjeta"><h3>Días cerrados (festivos, vacaciones…)</h3>
+  <form method="post" action="{{ url_for('proveedor.agregar_cierre') }}" class="filtros"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <label>Fecha<input type="date" name="fecha" min="{{ hoy }}" required></label><label>Motivo<input name="motivo" maxlength="80"></label><button class="primario">Agregar</button></form>
+  {% for c in cierres %}<div class="fila" style="border-top:1px solid var(--linea);padding:8px 0"><span>{{ c.fecha|fecha }} {% if c.motivo %}· {{ c.motivo }}{% endif %}</span>
+    <form method="post" action="{{ url_for('proveedor.eliminar_cierre', cid=c.id) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="mini peligro">Quitar</button></form></div>
+  {% else %}<p class="suave">No hay días cerrados próximos.</p>{% endfor %}</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}Prevención de fraude{% endblock %}
+{% block contenido %}
+<h2>Prevención de fraude</h2>
+<div class="nota"><b>Importante:</b> estas alertas son <b>indicios para revisión interna, no acusaciones</b>. Cada una puede tener una explicación legítima (un regalo, una familia, un error de digitación). Antes de tomar medidas, verifica con el cliente o proveedor y deja constancia en la nota. No suspendas ni sanciones a nadie solo por una alerta. El tratamiento de estos datos debe respetar los principios de finalidad, necesidad y circulación restringida de la Ley 1581 de 2012.</div>
+<form class="filtros" method="get"><label>Mostrar<select name="ver" onchange="this.form.submit()">
+  <option value="abiertas" {{ 'selected' if ver == 'abiertas' }}>Por revisar</option><option value="resueltas" {{ 'selected' if ver == 'resueltas' }}>Sin hallazgos</option><option value="todas" {{ 'selected' if ver == 'todas' }}>Todas</option></select></label>
+  <span class="suave chico">{{ lista|length }} de {{ total }} alerta(s) · umbral de pago alto: {{ umbral|pesos }}</span></form>
+{% for a in lista %}
+<div class="tarjeta alerta {{ a.sev }}">
+  <div class="fila"><h3 style="margin:0">{{ a.titulo }}</h3><span><span class="insignia {{ 'mal' if a.sev == 'alta' else 'aviso' if a.sev == 'media' else '' }}">Prioridad {{ a.sev }}</span> <span class="insignia {{ a.estado|estado_clase }}">{{ a.estado|estado_texto }}</span></span></div>
+  <p>{{ a.detalle }}</p>
+  {% if a.nota %}<p class="chico suave"><b>Nota ({{ a.por }}, {{ a.fecha|fecha_hora }}):</b> {{ a.nota }}</p>{% endif %}
+  <form method="post" action="{{ url_for('admin.revisar_alerta') }}" class="filtros" style="margin:0">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input type="hidden" name="clave" value="{{ a.clave }}"><input type="hidden" name="ver" value="{{ ver }}">
+    <input name="nota" placeholder="Nota: qué verificaste y con quién" size="38" maxlength="300">
+    {% if a.estado != 'en_revision' %}<button name="estado" value="en_revision" class="mini">Marcar en revisión</button>{% endif %}
+    {% if a.estado != 'sin_hallazgos' %}<button name="estado" value="sin_hallazgos" class="mini primario">Cerrar: sin hallazgos</button>{% endif %}
+    {% if a.estado != 'abierta' %}<button name="estado" value="abierta" class="mini">Reabrir</button>{% endif %}
+  </form></div>
+{% else %}<div class="vacio">No hay alertas en este filtro. 🎉</div>{% endfor %}
+{% endblock %}

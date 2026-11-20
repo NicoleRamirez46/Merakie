@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}Inicio{% endblock %}
+{% block contenido %}
+<div class="heroe">
+  <h1>Un espacio para cuidarte.</h1>
+  <p>Un solo lugar para clientes, salones aliados y el equipo administrador. Elige cómo quieres entrar.</p>
+</div>
+{% if g.usuario %}
+  <div class="msg">Ya tienes sesión iniciada como <b>{{ g.usuario.nombre }}</b>.
+    <a href="{{ url_for({'cliente':'cliente.inicio','proveedor':'proveedor.inicio','administrador':'admin.resumen'}[g.usuario.rol]) }}">Ir a mi panel</a></div>
+{% endif %}
+<h2>¿Quién eres?</h2>
+<div class="roles">
+  <div class="tarjeta rol"><div class="icono">💇‍♀️</div><h3>Soy cliente</h3><p class="suave">Reserva citas, compra productos y recibe beneficios.</p><a class="boton primario" href="{{ url_for('acceso.entrar', rol='cliente') }}">Entrar como cliente</a></div>
+  <div class="tarjeta rol"><div class="icono">🏪</div><h3>Soy proveedor</h3><p class="suave">Registra tu salón, tus servicios, horarios y recibe citas.</p><a class="boton primario" href="{{ url_for('acceso.entrar', rol='proveedor') }}">Entrar como proveedor</a></div>
+  <div class="tarjeta rol"><div class="icono">🛡️</div><h3>Soy administrador</h3><p class="suave">Verifica proveedores, revisa pagos, quejas y alertas.</p><a class="boton primario" href="{{ url_for('acceso.entrar', rol='administrador') }}">Entrar como administrador</a></div>
+</div>
+{% endblock %}

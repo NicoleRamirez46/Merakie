@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titulo %}Agendamientos{% endblock %}
+{% block contenido %}
+<div class="fila"><h2>Agendamientos</h2><a class="boton" href="{{ url_for('admin.exportar', tipo='citas') }}">Descargar CSV</a></div>
+<form class="filtros" method="get">
+  <label>Salón<select name="salon"><option value="">Todos</option>{% for s in salones %}<option value="{{ s.usuario_id }}" {{ 'selected' if s.usuario_id == f.salon }}>{{ s.nombre_comercial }}</option>{% endfor %}</select></label>
+  <label>Fecha<input type="date" name="fecha" value="{{ f.fecha }}"></label>
+  <label>Estado<select name="estado"><option value="">Todos</option>{% for e in ['pendiente','confirmada','completada','rechazada','no_asistio','cancelada'] %}<option value="{{ e }}" {{ 'selected' if e == f.estado }}>{{ e|estado_texto }}</option>{% endfor %}</select></label>
+  <button class="primario">Filtrar</button></form>
+{% if lista %}<div class="tabla"><table><thead><tr><th>Fecha y hora</th><th>Salón</th><th>Servicio</th><th>Cliente</th><th>Modalidad</th><th>Valor</th><th>Estado</th></tr></thead><tbody>
+{% for c in lista %}<tr><td><b>{{ c.fecha|fecha }}</b> {{ c.hora }}</td><td>{{ c.nombre_comercial }}</td><td>{{ c.servicio_nombre }}</td><td>{{ c.cliente_nombre }}<div class="chico suave">{{ c.cliente_telefono }}</div></td><td>{{ c.modalidad }}</td><td>{{ c.precio|pesos }}</td><td><span class="insignia {{ c.estado|estado_clase }}">{{ c.estado|estado_texto }}</span></td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="vacio">No hay citas con esos filtros.</div>{% endif %}
+{% endblock %}

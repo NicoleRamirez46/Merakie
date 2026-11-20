@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Mi calendario{% endblock %}
+{% block contenido %}
+<div class="fila"><div><h2>Mi calendario</h2><p class="suave">Todas tus citas.</p></div><a class="boton" href="{{ url_for('cliente.calendario_ics') }}">Descargar calendario (.ics)</a></div>
+{% for c in citas %}
+<div class="tarjeta"><div class="fila"><div>
+  <span class="insignia">{{ c.fecha|fecha }} · {{ c.hora }}</span> <span class="insignia {{ c.estado|estado_clase }}">{{ c.estado|estado_texto }}</span>
+  <h3>{{ c.servicio_nombre }}</h3><p>{{ c.nombre_comercial }} · {{ c.direccion }} · {{ c.modalidad }}<br><b>{{ c.precio|pesos }}</b></p></div>
+  {% if c.estado in ('pendiente','confirmada') %}
+  <form method="post" action="{{ url_for('cliente.cancelar_cita', cid=c.id) }}" data-confirmar="¿Cancelar esta cita?">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="peligro">Cancelar</button></form>{% endif %}
+</div></div>
+{% else %}<div class="vacio">Todavía no tienes citas. <a href="{{ url_for('cliente.salones') }}">Reserva la primera</a>.</div>{% endfor %}
+{% endblock %}

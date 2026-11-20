@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block titulo %}Productos{% endblock %}
+{% block contenido %}
+<h2>Productos para la tienda</h2>
+<p class="suave">Los productos que registres aquí se muestran a los clientes en la tienda cuando tu cuenta esté <b>verificada</b> {% if p.estado != 'verificado' %}(ahora está: {{ p.estado|estado_texto|lower }}){% endif %}.</p>
+<div class="tarjeta"><h3>{{ 'Editar producto' if e else 'Nuevo producto' }}</h3>
+  <form method="post" action="{{ url_for('proveedor.guardar_producto') }}" class="form"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    {% if e %}<input type="hidden" name="id" value="{{ e.id }}">{% endif %}
+    <label>Nombre<input name="nombre" value="{{ e.nombre if e }}" required maxlength="80"></label>
+    <label>Descripción<textarea name="descripcion" rows="2" maxlength="300">{{ e.descripcion if e }}</textarea></label>
+    <div class="dos"><label>Precio en pesos (sin puntos)<input name="precio" type="number" min="0" step="500" value="{{ e.precio if e }}" required></label>
+      <label>Unidades disponibles<input name="stock" type="number" min="0" value="{{ e.stock if e else 10 }}" required></label></div>
+    <label class="check"><input type="checkbox" name="activo" {{ 'checked' if (not e) or e.activo }}> Producto activo (visible en la tienda)</label>
+    <div class="acciones"><button class="primario">{{ 'Guardar cambios' if e else 'Agregar producto' }}</button>{% if e %}<a class="boton" href="{{ url_for('proveedor.productos') }}">Cancelar</a>{% endif %}</div></form></div>
+{% if lista %}<div class="tabla"><table><thead><tr><th>Producto</th><th>Precio</th><th>Stock</th><th>Estado</th><th></th></tr></thead><tbody>
+{% for x in lista %}<tr><td><b>{{ x.nombre }}</b><div class="chico suave">{{ x.descripcion }}</div></td><td>{{ x.precio|pesos }}</td><td>{{ x.stock }}</td>
+  <td><span class="insignia {{ 'ok' if x.activo else 'aviso' }}">{{ 'Activo' if x.activo else 'Inactivo' }}</span></td>
+  <td><div class="acciones"><a class="boton mini" href="{{ url_for('proveedor.productos', editar=x.id) }}">Editar</a>
+    <form method="post" action="{{ url_for('proveedor.eliminar_producto', pid=x.id) }}" data-confirmar="¿Eliminar este producto?"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="mini peligro">Eliminar</button></form></div></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<div class="vacio">Aún no tienes productos.</div>{% endif %}
+{% endblock %}

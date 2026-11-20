@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Mi salón{% endblock %}
+{% block contenido %}
+<h2>Mi salón</h2>
+<div class="tarjeta"><form method="post" class="form"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <p class="chico suave">Razón social: <b>{{ p.razon_social }}</b> · NIT: <b>{{ p.nit }}</b>. Para cambiarlos escríbenos: están ligados a tu verificación.</p>
+  <label>Nombre comercial<input name="nombre_comercial" value="{{ p.nombre_comercial }}" required maxlength="80"></label>
+  <label>Descripción (la verán los clientes)<textarea name="descripcion" rows="3" maxlength="600">{{ p.descripcion }}</textarea></label>
+  <div class="dos"><label>Persona de contacto<input name="nombre" value="{{ g.usuario.nombre }}" required></label><label>Teléfono<input name="telefono" value="{{ g.usuario.telefono }}" required></label></div>
+  <div class="dos"><label>Ciudad<input name="ciudad" value="{{ p.ciudad }}" required></label><label>Dirección<input name="direccion" value="{{ p.direccion }}" required></label></div>
+  <label>Cupos simultáneos (cuántos clientes atiendes a la misma hora)<input name="cupos" type="number" min="1" max="50" value="{{ p.cupos }}" required></label>
+  <label class="check"><input type="checkbox" name="auto_confirmar" {{ 'checked' if p.auto_confirmar }}> Confirmar automáticamente las citas nuevas (si no, tú las confirmas manualmente)</label>
+  <button class="primario">Guardar cambios</button></form></div>
+{% endblock %}

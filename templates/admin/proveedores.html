@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}Proveedores{% endblock %}
+{% block contenido %}
+<h2>Proveedores</h2>
+<form class="filtros" method="get"><label>Estado<select name="estado"><option value="">Todos</option>{% for e in ['pendiente_documentos','en_revision','verificado','rechazado','suspendido'] %}<option value="{{ e }}" {{ 'selected' if e == estado }}>{{ e|estado_texto }}</option>{% endfor %}</select></label><button class="primario">Filtrar</button></form>
+{% if lista %}<div class="tabla"><table><thead><tr><th>Salón</th><th>NIT</th><th>Contacto</th><th>Ciudad</th><th>Servicios</th><th>Productos</th><th>Estado</th><th></th></tr></thead><tbody>
+{% for p in lista %}<tr><td><b>{{ p.nombre_comercial }}</b><div class="chico suave">{{ p.razon_social }} · registro {{ p.creado|fecha }}</div></td><td>{{ p.nit }}</td><td>{{ p.contacto }}<div class="chico suave">{{ p.correo }} · {{ p.telefono }}</div></td><td>{{ p.ciudad }}</td><td>{{ p.n_servicios }}</td><td>{{ p.n_productos }}</td>
+  <td><span class="insignia {{ p.estado|estado_clase }}">{{ p.estado|estado_texto }}</span></td><td><a class="boton mini primario" href="{{ url_for('admin.proveedor', pid=p.usuario_id) }}">Revisar</a></td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="vacio">Aún no hay proveedores registrados{% if estado %} en ese estado{% endif %}.</div>{% endif %}
+{% endblock %}

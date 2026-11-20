@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Beneficios{% endblock %}
+{% block contenido %}
+<h2>Descuentos y Merakié Pass</h2>
+<div class="rejilla">
+{% for t, d in descuentos %}<div class="tarjeta"><span class="insignia">Promoción</span><h3>{{ t }}</h3><p>{{ d }}</p></div>{% endfor %}
+</div>
+<div class="tarjeta" style="max-width:560px"><span class="insignia aviso">Membresía de demostración</span><h3>Merakié Pass</h3>
+  <p>Descuento del 5 % en todos los productos de la tienda. No se realiza ningún cobro real.</p>
+  <p><b style="font-size:18px;color:var(--plum)">$19.900 COP / mes (precio ficticio)</b></p>
+  {% if perfil.pass_activo %}<div class="msg">Tu Merakié Pass está activo ✔</div>
+  {% else %}<form method="post" action="{{ url_for('cliente.activar_pass') }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="primario">Activar Pass de prueba</button></form>{% endif %}
+</div>
+{% endblock %}

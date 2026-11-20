@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}{{ u.nombre }}{% endblock %}
+{% block contenido %}
+<p><a href="{{ url_for('admin.clientes') }}">← Clientes</a></p>
+<h2>{{ u.nombre }}</h2>
+<div class="tarjeta"><p>Usuario: <b>@{{ u.usuario }}</b> · {{ u.correo }} · Tel: {{ u.telefono }} · Edad: {{ u.edad }}<br>
+  Documento: <b>{{ u.documento if mostrar else (u.documento|oculto) }}</b>
+  {% if u.documento and not mostrar %}<form method="post" style="display:inline"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="mini">Mostrar (queda en auditoría)</button></form>{% endif %}<br>
+  Registro: {{ u.creado|fecha_hora }} · Autorización de datos (Ley 1581): {{ u.consentimiento_fecha|fecha }} (v{{ u.consentimiento_version }}) · Pass: {{ 'Sí' if u.pass_activo else 'No' }}</p></div>
+<h3>Compras ({{ pedidos|length }})</h3>
+{% if pedidos %}<div class="tabla"><table><thead><tr><th>Pedido</th><th>Fecha</th><th>Productos</th><th>Total</th><th>Estado</th></tr></thead><tbody>{% for p in pedidos %}<tr><td>#{{ p.id }}</td><td>{{ p.creado|fecha_hora }}</td><td>{{ p.productos }}</td><td>{{ p.total|pesos }}</td><td>{{ p.estado }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="vacio">Sin compras.</div>{% endif %}
+<h3>Pagos ({{ pagos|length }})</h3>
+{% if pagos %}<div class="tabla"><table><thead><tr><th>Pago</th><th>Fecha</th><th>Valor</th><th>Método</th><th>Estado</th></tr></thead><tbody>{% for p in pagos %}<tr><td>#{{ p.id }}</td><td>{{ p.creado|fecha_hora }}</td><td>{{ p.valor|pesos }}</td><td>{{ p.metodo }}</td><td><span class="insignia {{ p.estado|estado_clase }}">{{ p.estado }}</span></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="vacio">Sin pagos.</div>{% endif %}
+<h3>Citas ({{ citas|length }})</h3>
+{% if citas %}<div class="tabla"><table><thead><tr><th>Fecha</th><th>Salón</th><th>Servicio</th><th>Estado</th></tr></thead><tbody>{% for c in citas %}<tr><td>{{ c.fecha|fecha }} {{ c.hora }}</td><td>{{ c.nombre_comercial }}</td><td>{{ c.servicio_nombre }}</td><td><span class="insignia {{ c.estado|estado_clase }}">{{ c.estado|estado_texto }}</span></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="vacio">Sin citas.</div>{% endif %}
+<h3>Inconformidades ({{ quejas|length }})</h3>
+{% if quejas %}<div class="tabla"><table><thead><tr><th>Fecha</th><th>Tipo</th><th>Asunto</th><th>Estado</th></tr></thead><tbody>{% for q in quejas %}<tr><td>{{ q.creado|fecha }}</td><td>{{ q.tipo }}</td><td>{{ q.asunto }}</td><td><span class="insignia {{ q.estado|estado_clase }}">{{ q.estado }}</span></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="vacio">Sin solicitudes.</div>{% endif %}
+{% endblock %}

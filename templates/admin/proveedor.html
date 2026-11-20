@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titulo %}{{ p.nombre_comercial }}{% endblock %}
+{% block contenido %}
+<p><a href="{{ url_for('admin.proveedores') }}">← Proveedores</a></p>
+<div class="fila"><h2>{{ p.nombre_comercial }}</h2><span class="insignia {{ p.estado|estado_clase }}">{{ p.estado|estado_texto }}</span></div>
+<div class="tarjeta"><p><b>Razón social:</b> {{ p.razon_social }} ({{ 'persona jurídica' if p.tipo_persona == 'juridica' else 'persona natural' }}) · <b>NIT:</b> {{ p.nit }}<br>
+  <b>Contacto:</b> {{ p.contacto }} · {{ p.correo }} · {{ p.telefono }} · usuario @{{ p.usuario }}<br><b>Dirección:</b> {{ p.direccion }}, {{ p.ciudad }}<br>
+  <b>Citas:</b> {{ stats.total }} ({{ stats.hechas }} completadas) · <b>Cupos:</b> {{ p.cupos }}{% if p.motivo %}<br><b>Último motivo:</b> {{ p.motivo }}{% endif %}</p></div>
+
+<div class="tarjeta"><h3>Decisión de verificación</h3>
+  <p class="chico suave">Revisa los documentos (RUT y {{ 'Cámara de Comercio' if p.tipo_persona == 'juridica' else 'cédula' }}) y que el NIT coincida con la razón social antes de verificar.</p>
+  <form method="post" action="{{ url_for('admin.estado_proveedor', pid=p.usuario_id) }}" class="form"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <label>Motivo (obligatorio al rechazar o suspender; el proveedor lo verá)<input name="motivo" maxlength="300"></label>
+    <div class="acciones">
+      <button name="estado" value="verificado" class="primario">✔ Verificar</button>
+      <button name="estado" value="rechazado" class="peligro">Rechazar</button>
+      <button name="estado" value="suspendido" class="peligro">Suspender</button>
+      <button name="estado" value="en_revision">Volver a revisión</button></div></form></div>
+
+<h3>Documentos</h3>
+{% if docs %}<div class="tabla"><table><thead><tr><th>Tipo</th><th>Archivo</th><th>Subido</th><th></th></tr></thead><tbody>
+{% for d in docs %}<tr><td>{{ tipos.get(d.tipo, d.tipo) }}</td><td>{{ d.nombre_original }}</td><td>{{ d.subido|fecha_hora }}</td><td><a class="boton mini" href="{{ url_for('admin.ver_documento', did=d.id) }}">Abrir (queda en auditoría)</a></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="vacio">No ha subido documentos.</div>{% endif %}
+<h3>Servicios</h3>
+{% if servicios %}<div class="tabla"><table><thead><tr><th>Servicio</th><th>Categoría</th><th>Precio</th><th>Duración</th><th>Activo</th></tr></thead><tbody>{% for s in servicios %}<tr><td>{{ s.nombre }}</td><td>{{ s.categoria }}</td><td>{{ s.precio|pesos }}</td><td>{{ s.duracion_min }} min</td><td>{{ 'Sí' if s.activo else 'No' }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="vacio">Sin servicios.</div>{% endif %}
+<h3>Productos</h3>
+{% if productos %}<div class="tabla"><table><thead><tr><th>Producto</th><th>Precio</th><th>Stock</th><th>Activo</th></tr></thead><tbody>{% for x in productos %}<tr><td>{{ x.nombre }}</td><td>{{ x.precio|pesos }}</td><td>{{ x.stock }}</td><td>{{ 'Sí' if x.activo else 'No' }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="vacio">Sin productos.</div>{% endif %}
+{% endblock %}

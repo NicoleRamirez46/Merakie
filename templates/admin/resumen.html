@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block titulo %}Resumen{% endblock %}
+{% block contenido %}
+<h2>Resumen</h2><p class="suave">Cifras calculadas en vivo con lo que clientes y proveedores realmente registran en la plataforma.</p>
+<div class="rejilla">
+  <div class="tarjeta kpi"><div class="n">{{ d.clientes }}</div><div class="l">Clientes</div></div>
+  <div class="tarjeta kpi"><div class="n">{{ d.proveedores }}</div><div class="l">Proveedores ({{ d.prov_verificados }} verificados · {{ d.prov_revision }} en revisión)</div></div>
+  <div class="tarjeta kpi"><div class="n">{{ d.citas }}</div><div class="l">Reservas ({{ d.citas_activas }} activas)</div></div>
+  <div class="tarjeta kpi"><div class="n">{{ d.compras }}</div><div class="l">Compras</div></div>
+  <div class="tarjeta kpi"><div class="n">{{ d.pagos }}</div><div class="l">Pagos registrados</div></div>
+  <div class="tarjeta kpi"><div class="n">{{ d.ingresos|pesos }}</div><div class="l">Pagos aprobados (total)</div></div>
+  <div class="tarjeta kpi"><div class="n">{{ d.alertas }}</div><div class="l"><a href="{{ url_for('admin.fraude_vista') }}">Alertas por revisar</a></div></div>
+  <div class="tarjeta kpi"><div class="n">{{ d.quejas }}</div><div class="l"><a href="{{ url_for('admin.quejas') }}">Inconformidades sin resolver</a></div></div>
+</div>
+<h3>Actividad reciente</h3>
+{% if reciente %}<div class="tabla"><table><thead><tr><th>Fecha</th><th>Quién</th><th>Acción</th><th>Detalle</th></tr></thead><tbody>
+{% for r in reciente %}<tr><td>{{ r.fecha|fecha_hora }}</td><td>{{ r.actor }}</td><td>{{ r.accion }}</td><td>{{ r.detalle }}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="vacio">Aún no hay actividad.</div>{% endif %}
+{% endblock %}

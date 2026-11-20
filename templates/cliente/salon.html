@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}{{ s.nombre_comercial }}{% endblock %}
+{% block contenido %}
+<p><a href="{{ url_for('cliente.salones') }}">← Todos los salones</a></p>
+<h2>{{ s.nombre_comercial }}</h2>
+<p class="suave">📍 {{ s.direccion }}, {{ s.ciudad }} · 📞 {{ s.telefono }}</p><p>{{ s.descripcion }}</p>
+<div class="rejilla">
+  <div class="tarjeta"><h3>Servicios</h3>
+    {% for x in servicios %}<p><b>{{ x.nombre }}</b> <span class="insignia">{{ x.categoria }}</span><br><span class="suave chico">{{ x.descripcion }}</span><br>{{ x.precio|pesos }} · {{ x.duracion_min }} min</p>{% endfor %}</div>
+  <div class="tarjeta"><h3>Reservar una cita</h3>
+    {# data-url-horas: el JavaScript pide aquí las horas libres cuando cambias el servicio o la fecha #}
+    <form method="post" action="{{ url_for('cliente.reservar', pid=s.usuario_id) }}" class="form" data-url-horas="{{ url_for('cliente.api_horas', pid=s.usuario_id) }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <label>Servicio<select name="servicio_id" required>{% for x in servicios %}<option value="{{ x.id }}">{{ x.nombre }} — {{ x.precio|pesos }}</option>{% endfor %}</select></label>
+      <label>Fecha<input type="date" name="fecha" min="{{ hoy }}" value="{{ hoy }}" required></label>
+      <label>Hora disponible<select name="hora" required></select></label>
+      <label>Modalidad<select name="modalidad"><option>En el salón</option><option>A domicilio (simulación)</option></select></label>
+      <label>Notas para el salón (opcional)<textarea name="notas" rows="2" maxlength="300"></textarea></label>
+      <button class="primario">Confirmar reserva</button>
+    </form></div>
+</div>
+{% endblock %}

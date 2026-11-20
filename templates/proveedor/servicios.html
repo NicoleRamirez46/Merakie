@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}Servicios{% endblock %}
+{% block contenido %}
+<h2>Servicios</h2>
+<div class="tarjeta"><h3>{{ 'Editar servicio' if e else 'Nuevo servicio' }}</h3>
+  <form method="post" action="{{ url_for('proveedor.guardar_servicio') }}" class="form"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    {% if e %}<input type="hidden" name="id" value="{{ e.id }}">{% endif %}
+    <div class="dos"><label>Nombre<input name="nombre" value="{{ e.nombre if e }}" required maxlength="80" placeholder="Ej. Manicure semipermanente"></label>
+      <label>Categoría<select name="categoria">{% for c in categorias %}<option {{ 'selected' if e and e.categoria == c }}>{{ c }}</option>{% endfor %}</select></label></div>
+    <label>Descripción<textarea name="descripcion" rows="2" maxlength="400">{{ e.descripcion if e }}</textarea></label>
+    <div class="dos"><label>Precio en pesos (sin puntos)<input name="precio" type="number" min="0" step="500" value="{{ e.precio if e }}" required></label>
+      <label>Duración (minutos)<input name="duracion_min" type="number" min="10" max="600" step="5" value="{{ e.duracion_min if e else 60 }}" required></label></div>
+    <label class="check"><input type="checkbox" name="activo" {{ 'checked' if (not e) or e.activo }}> Servicio activo (visible para los clientes)</label>
+    <div class="acciones"><button class="primario">{{ 'Guardar cambios' if e else 'Agregar servicio' }}</button>{% if e %}<a class="boton" href="{{ url_for('proveedor.servicios') }}">Cancelar</a>{% endif %}</div>
+  </form></div>
+{% if lista %}<div class="tabla"><table><thead><tr><th>Servicio</th><th>Categoría</th><th>Precio</th><th>Duración</th><th>Estado</th><th></th></tr></thead><tbody>
+{% for s in lista %}<tr><td><b>{{ s.nombre }}</b><div class="chico suave">{{ s.descripcion }}</div></td><td>{{ s.categoria }}</td><td>{{ s.precio|pesos }}</td><td>{{ s.duracion_min }} min</td>
+  <td><span class="insignia {{ 'ok' if s.activo else 'aviso' }}">{{ 'Activo' if s.activo else 'Inactivo' }}</span></td>
+  <td><div class="acciones"><a class="boton mini" href="{{ url_for('proveedor.servicios', editar=s.id) }}">Editar</a>
+    <form method="post" action="{{ url_for('proveedor.eliminar_servicio', sid=s.id) }}" data-confirmar="¿Eliminar este servicio? Si ya tuvo citas se desactivará para conservar el historial."><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="mini peligro">Eliminar</button></form></div></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<div class="vacio">Aún no tienes servicios. Agrega el primero arriba.</div>{% endif %}
+{% endblock %}

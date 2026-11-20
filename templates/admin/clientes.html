@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}Clientes{% endblock %}
+{% block contenido %}
+<h2>Clientes</h2><p class="suave">Datos que cada cliente registró. Nunca se muestran contraseñas; el documento aparece oculto.</p>
+<form class="filtros" method="get"><label>Buscar<input name="q" value="{{ q }}" placeholder="Nombre, usuario, correo o teléfono" size="34"></label><button class="primario">Buscar</button></form>
+{% if lista %}<div class="tabla"><table><thead><tr><th>Cliente</th><th>Correo</th><th>Teléfono</th><th>Documento</th><th>Registro</th><th>Compras</th><th>Citas</th><th>Pass</th><th></th></tr></thead><tbody>
+{% for c in lista %}<tr><td>{{ c.nombre }}<div class="chico suave">@{{ c.usuario }}</div></td><td>{{ c.correo }}</td><td>{{ c.telefono }}</td><td>{{ c.documento|oculto }}</td><td>{{ c.creado|fecha }}</td><td>{{ c.compras }}</td><td>{{ c.citas }}</td>
+  <td>{% if c.pass_activo %}<span class="insignia ok">Pass</span>{% else %}—{% endif %}</td><td><a class="boton mini" href="{{ url_for('admin.cliente', cid=c.id) }}">Ver historial</a></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<div class="vacio">Aún no hay clientes registrados{% if q %} que coincidan{% endif %}.</div>{% endif %}
+{% endblock %}

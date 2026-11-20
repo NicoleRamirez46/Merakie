@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block titulo %}Carrito{% endblock %}
+{% block contenido %}
+<h2>Tu carrito</h2>
+{% if not items %}<div class="vacio">Tu carrito está vacío. <a href="{{ url_for('cliente.tienda') }}">Explora la tienda</a>.</div>
+{% else %}
+<div class="tabla"><table><thead><tr><th>Producto</th><th>Precio</th><th>Cantidad</th><th class="derecha">Total</th></tr></thead><tbody>
+{% for it in items %}<tr><td><b>{{ it.p.nombre }}</b></td><td>{{ it.p.precio|pesos }}</td>
+  <td><div class="acciones">
+    <form method="post" action="{{ url_for('cliente.cambiar', pid=it.p.id, delta=0) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="mini">−</button></form>
+    <b>{{ it.cantidad }}</b>
+    <form method="post" action="{{ url_for('cliente.cambiar', pid=it.p.id, delta=1) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="mini">+</button></form></div></td>
+  <td class="derecha">{{ it.total|pesos }}</td></tr>{% endfor %}
+</tbody></table></div>
+<div class="tarjeta" style="max-width:480px">
+  <h3>Resumen</h3>
+  <div class="fila"><span>Subtotal</span><span>{{ subtotal|pesos }}</span></div>
+  {% if descuento %}<div class="fila"><span>Descuento Merakié Pass (5 %)</span><span>− {{ descuento|pesos }}</span></div>{% endif %}
+  <div class="fila"><b>Total</b><b style="font-size:20px;color:var(--plum)">{{ total|pesos }}</b></div>
+  <form method="post" action="{{ url_for('cliente.pagar') }}" class="form" style="margin-top:12px">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <label>Método de pago (simulado)<select name="metodo">
+      <option value="tarjeta">Tarjeta de prueba</option><option value="pse">PSE (simulado)</option><option value="nequi">Nequi (simulado)</option>
+      <option value="contraentrega">Pago contra entrega (simulado)</option><option value="rechazo">Tarjeta de prueba — simular rechazo</option></select></label>
+    <p class="chico suave">No se realiza ningún cargo real ni se piden datos bancarios.</p>
+    <button class="primario">Simular pago</button>
+  </form>
+  <form method="post" action="{{ url_for('cliente.vaciar') }}" style="margin-top:8px"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="peligro mini">Vaciar carrito</button></form>
+</div>
+{% endif %}
+{% endblock %}

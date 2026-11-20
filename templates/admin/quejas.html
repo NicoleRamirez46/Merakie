@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titulo %}Inconformidades{% endblock %}
+{% block contenido %}
+<h2>Inconformidades (PQR)</h2>
+<div class="nota">Las quejas y reclamos de consumidores deben atenderse de forma oportuna (Ley 1480 de 2011, Estatuto del Consumidor); las peticiones se rigen por la Ley 1755 de 2015. Verifica los términos vigentes con tu asesor jurídico.</div>
+<form class="filtros" method="get"><label>Estado<select name="estado"><option value="">Todos</option>{% for e in ['Pendiente','En revisión','Resuelta'] %}<option {{ 'selected' if e == estado }}>{{ e }}</option>{% endfor %}</select></label><button class="primario">Filtrar</button></form>
+{% for q in lista %}
+<div class="tarjeta"><span class="insignia">{{ q.tipo }}</span> <span class="insignia {{ q.estado|estado_clase }}">{{ q.estado }}</span>
+  <h3>{{ q.asunto }}</h3><p class="chico suave">{{ q.nombre }} (@{{ q.usuario }}) · {{ q.creado|fecha_hora }}{% if q.pedido_id %} · Compra #{{ q.pedido_id }}{% endif %}</p>
+  <p>{{ q.mensaje }}</p>
+  <form method="post" action="{{ url_for('admin.actualizar_queja', qid=q.id) }}" class="form ancho"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <label>Respuesta para el cliente<textarea name="respuesta" rows="2" maxlength="1000">{{ q.respuesta }}</textarea></label>
+    <div class="acciones"><select name="estado" style="width:auto">{% for e in ['Pendiente','En revisión','Resuelta'] %}<option {{ 'selected' if e == q.estado }}>{{ e }}</option>{% endfor %}</select><button class="primario mini">Guardar</button></div></form></div>
+{% else %}<div class="vacio">No hay solicitudes en este filtro.</div>{% endfor %}
+{% endblock %}

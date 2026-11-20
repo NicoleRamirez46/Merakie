@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block titulo %}Auditoría{% endblock %}
+{% block contenido %}
+<h2>Auditoría</h2><p class="suave">Registro de ingresos (incluidos los fallidos), registros, consultas a datos sensibles, cambios de estado y exportaciones. Últimos 300 eventos.</p>
+{% if lista %}<div class="tabla"><table><thead><tr><th>Fecha</th><th>Quién</th><th>Acción</th><th>Detalle</th><th>IP</th></tr></thead><tbody>
+{% for r in lista %}<tr><td>{{ r.fecha|fecha_hora }}</td><td>{{ r.actor }}</td><td>{{ r.accion }}</td><td>{{ r.detalle }}</td><td>{{ r.ip }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="vacio">Sin eventos.</div>{% endif %}
+{% endblock %}

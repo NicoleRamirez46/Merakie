@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titulo %}Mi cuenta{% endblock %}
+{% block contenido %}
+<h2>Mi cuenta</h2>
+<div class="rejilla">
+  <div class="tarjeta">
+    <h3>Mis datos</h3>
+    <p><b>Nombre:</b> {{ g.usuario.nombre }}<br><b>Usuario:</b> {{ g.usuario.usuario }}<br><b>Correo:</b> {{ g.usuario.correo }}<br>
+       <b>Teléfono:</b> {{ g.usuario.telefono or '—' }}<br><b>Tipo de cuenta:</b> {{ g.usuario.rol|capitalize }}<br><b>Creada:</b> {{ g.usuario.creado|fecha }}</p>
+    {% if g.usuario.rol == 'cliente' and extra %}
+      <p><b>Documento:</b> {{ extra.documento|oculto }} · <b>Edad:</b> {{ extra.edad }}<br>
+      <b>Merakié Pass:</b> {{ 'Activo' if extra.pass_activo else 'No activado' }}<br>
+      <span class="suave chico">Autorizaste el tratamiento de datos el {{ extra.consentimiento_fecha|fecha }} (versión {{ extra.consentimiento_version }}).</span></p>
+    {% elif g.usuario.rol == 'proveedor' and extra %}
+      <p><b>Salón:</b> {{ extra.nombre_comercial }}<br><b>NIT:</b> {{ extra.nit }}<br><b>Estado:</b> <span class="insignia {{ extra.estado|estado_clase }}">{{ extra.estado|estado_texto }}</span></p>
+    {% endif %}
+  </div>
+  <div class="tarjeta">
+    <h3>Cambiar contraseña</h3>
+    <form method="post" action="{{ url_for('acceso.cambiar_clave') }}" class="form">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <label>Contraseña actual<input name="actual" type="password" required autocomplete="current-password"></label>
+      <label>Contraseña nueva (mínimo 8, con letras y números)<input name="nueva" type="password" required minlength="8" autocomplete="new-password"></label>
+      <label>Repite la contraseña nueva<input name="repetir" type="password" required minlength="8" autocomplete="new-password"></label>
+      <button class="primario">Guardar contraseña</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

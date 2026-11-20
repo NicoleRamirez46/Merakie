@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Documentos{% endblock %}
+{% block contenido %}
+<h2>Documentos de verificación</h2>
+<p class="suave">Sube el <b>RUT</b> y {{ 'el <b>certificado de Cámara de Comercio</b>' | safe if p.tipo_persona == 'juridica' else 'la <b>cédula del titular</b>' | safe }}. PDF, JPG o PNG de máximo 5 MB. Solo tú y el equipo de Merakié pueden verlos.</p>
+<div class="tarjeta"><form method="post" action="{{ url_for('proveedor.subir_documento') }}" enctype="multipart/form-data" class="form"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <label>Tipo de documento<select name="tipo" required>{% for k, n in tipos.items() %}<option value="{{ k }}">{{ n }}</option>{% endfor %}</select></label>
+  <label>Archivo<input type="file" name="archivo" accept=".pdf,.jpg,.jpeg,.png" required></label><button class="primario">Subir documento</button></form></div>
+{% if docs %}<div class="tabla"><table><thead><tr><th>Tipo</th><th>Archivo</th><th>Tamaño</th><th>Subido</th><th></th></tr></thead><tbody>
+{% for d in docs %}<tr><td>{{ tipos.get(d.tipo, d.tipo) }}</td><td>{{ d.nombre_original }}</td><td>{{ (d.tamano / 1024)|round|int }} KB</td><td>{{ d.subido|fecha_hora }}</td>
+  <td><div class="acciones"><a class="boton mini" href="{{ url_for('proveedor.descargar_documento', did=d.id) }}">Descargar</a>
+    <form method="post" action="{{ url_for('proveedor.eliminar_documento', did=d.id) }}" data-confirmar="¿Eliminar este documento?"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="mini peligro">Eliminar</button></form></div></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<div class="vacio">Aún no has subido documentos.</div>{% endif %}
+{% endblock %}

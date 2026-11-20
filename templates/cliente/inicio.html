@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Inicio{% endblock %}
+{% block contenido %}
+<div class="heroe"><h1>Hola, {{ g.usuario.nombre.split()[0] }} 👋</h1><p>Agenda tu próxima cita, compra productos de cuidado personal o revisa tus beneficios.</p>
+  <a class="boton" href="{{ url_for('cliente.salones') }}">Reservar cita</a> <a class="boton" href="{{ url_for('cliente.tienda') }}">Explorar tienda</a></div>
+<div class="rejilla">
+  <div class="tarjeta"><h3>📅 Próximas citas</h3>
+    {% for c in proximas %}<p><span class="insignia {{ c.estado|estado_clase }}">{{ c.estado|estado_texto }}</span> <b>{{ c.fecha|fecha }} {{ c.hora }}</b><br>{{ c.servicio_nombre }} · {{ c.nombre_comercial }}</p>
+    {% else %}<p class="suave">No tienes citas próximas.</p>{% endfor %}
+    <a href="{{ url_for('cliente.calendario') }}">Ver mi calendario</a></div>
+  <div class="tarjeta"><h3>⭐ Merakié Pass</h3><p>{{ 'Activo: tienes 5 % de descuento en la tienda.' if perfil.pass_activo else 'Aún no lo activas.' }}</p><a href="{{ url_for('cliente.beneficios') }}">Ver beneficios</a></div>
+  <div class="tarjeta"><h3>💬 ¿Algo no salió bien?</h3><p class="suave">Envíanos tu queja, reclamo o petición.</p><a href="{{ url_for('cliente.ayuda') }}">Ir a Ayuda / PQR</a></div>
+</div>
+{% endblock %}

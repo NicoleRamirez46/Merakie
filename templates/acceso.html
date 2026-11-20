@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}Ingresar · {{ nombre_rol }}{% endblock %}
+{% block contenido %}
+<div class="centro">
+  <p><a href="{{ url_for('acceso.inicio') }}">← Cambiar tipo de usuario</a></p>
+  <div class="tarjeta">
+    <h2>Ingresar como {{ nombre_rol|lower }}</h2>
+    <p class="suave">¿Ya tienes cuenta? Escribe tu usuario y tu contraseña. Tu sesión queda guardada en este equipo.</p>
+    <form method="post" class="form">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <label>Usuario<input name="usuario" required autocomplete="username" autofocus></label>
+      <label>Contraseña<input name="clave" type="password" required autocomplete="current-password"></label>
+      <button class="primario">Ingresar</button>
+    </form>
+  </div>
+  <div class="tarjeta">
+    <h3>¿Eres nuevo?</h3>
+    <p class="suave">Crea tu cuenta de {{ nombre_rol|lower }}. Te pediremos los datos que corresponden a este tipo de usuario.</p>
+    <a class="boton" href="{{ url_for('acceso.registro', rol=rol) }}">Crear cuenta de {{ nombre_rol|lower }}</a>
+  </div>
+</div>
+{% endblock %}

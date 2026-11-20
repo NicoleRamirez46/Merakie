@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titulo %}Tienda{% endblock %}
+{% block contenido %}
+<h2>Tienda Merakié</h2><p class="suave">Productos de Merakié y de proveedores verificados.</p>
+<div class="rejilla">
+{% for p in productos %}
+  <div class="tarjeta"><div style="font-size:38px">{{ p.emoji }}</div><h3>{{ p.nombre }}</h3><p class="suave">{{ p.descripcion }}</p>
+    <p class="chico suave">Vende: {{ p.vendedor }}</p><p><b style="font-size:18px;color:var(--plum)">{{ p.precio|pesos }}</b></p>
+    {% if p.stock > 0 %}
+    <form method="post" action="{{ url_for('cliente.agregar', pid=p.id) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="primario">Añadir al carrito</button></form>
+    <p class="chico suave">{{ p.stock }} disponibles</p>
+    {% else %}<span class="insignia mal">Agotado</span>{% endif %}</div>
+{% else %}<div class="vacio" style="grid-column:1/-1">No hay productos disponibles.</div>{% endfor %}
+</div>
+{% endblock %}

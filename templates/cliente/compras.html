@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titulo %}Mis compras{% endblock %}
+{% block contenido %}
+<h2>Mis compras</h2>
+{% if pedidos %}<div class="tabla"><table><thead><tr><th>Pedido</th><th>Fecha</th><th>Productos</th><th>Total</th><th>Estado</th></tr></thead><tbody>
+{% for p in pedidos %}<tr><td>#{{ p.id }}</td><td>{{ p.creado|fecha_hora }}</td><td>{{ p.productos }}</td><td>{{ p.total|pesos }}</td><td><span class="insignia {{ p.estado|estado_clase }}">{{ p.estado }}</span></td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="vacio">Aún no has comprado nada.</div>{% endif %}
+<h3>Mis pagos</h3>
+{% if pagos %}<div class="tabla"><table><thead><tr><th>Pago</th><th>Fecha</th><th>Valor</th><th>Método</th><th>Estado</th></tr></thead><tbody>
+{% for p in pagos %}<tr><td>#{{ p.id }}</td><td>{{ p.creado|fecha_hora }}</td><td>{{ p.valor|pesos }}</td><td>{{ p.metodo }}</td>
+  <td><span class="insignia {{ p.estado|estado_clase }}">{{ p.estado }}</span>{% if p.motivo %}<div class="chico suave">{{ p.motivo }}</div>{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="vacio">Sin pagos registrados.</div>{% endif %}
+{% endblock %}

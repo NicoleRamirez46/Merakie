@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titulo %}Citas{% endblock %}
+{% block contenido %}
+<h2>Citas</h2>
+<form class="filtros" method="get">
+  <label>Estado<select name="estado"><option value="">Todos</option>{% for e in ['pendiente','confirmada','completada','rechazada','no_asistio','cancelada'] %}<option value="{{ e }}" {{ 'selected' if e == estado }}>{{ e|estado_texto }}</option>{% endfor %}</select></label>
+  <label>Desde<input type="date" name="desde" value="{{ desde }}"></label><button class="primario">Filtrar</button>
+</form>
+{% if lista %}<div class="tabla"><table><thead><tr><th>Fecha y hora</th><th>Cliente</th><th>Servicio</th><th>Valor</th><th>Origen</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+{% for c in lista %}<tr><td><b>{{ c.fecha|fecha }}</b> {{ c.hora }}–{{ c.hora_fin }}</td>
+  <td>{{ c.cliente_nombre }}<div class="chico suave">{{ c.cliente_telefono }}</div>{% if c.notas %}<div class="chico">📝 {{ c.notas }}</div>{% endif %}</td>
+  <td>{{ c.servicio_nombre }}<div class="chico suave">{{ c.modalidad }}</div></td><td>{{ c.precio|pesos }}</td><td>{{ 'Plataforma' if c.origen == 'plataforma' else 'Manual' }}</td>
+  <td><span class="insignia {{ c.estado|estado_clase }}">{{ c.estado|estado_texto }}</span></td>
+  <td><div class="acciones">{% for nuevo in flujo.get(c.estado, []) %}
+    <form method="post" action="{{ url_for('proveedor.cambiar_estado_cita', cid=c.id) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input type="hidden" name="estado" value="{{ nuevo }}">
+      <button class="mini {{ 'peligro' if nuevo in ('rechazada','cancelada','no_asistio') else 'primario' }}">{{ nuevo|estado_texto }}</button></form>{% endfor %}</div></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<div class="vacio">No hay citas con esos filtros.</div>{% endif %}
+
+<div class="tarjeta"><h3>Registrar una cita manual (llamada o mostrador)</h3>
+  {% if servicios %}
+  <form method="post" action="{{ url_for('proveedor.cita_manual') }}" class="form" data-url-horas="{{ url_for('proveedor.api_horas') }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <div class="dos"><label>Nombre del cliente<input name="cliente_nombre" required maxlength="80"></label><label>Teléfono<input name="cliente_telefono" required></label></div>
+    <label>Servicio<select name="servicio_id" required>{% for s in servicios %}<option value="{{ s.id }}">{{ s.nombre }} — {{ s.precio|pesos }}</option>{% endfor %}</select></label>
+    <div class="dos"><label>Fecha<input type="date" name="fecha" min="{{ hoy }}" value="{{ hoy }}" required></label><label>Hora disponible<select name="hora" required></select></label></div>
+    <label>Notas (opcional)<input name="notas" maxlength="300"></label><button class="primario">Registrar cita</button></form>
+  {% else %}<p class="suave">Primero agrega un servicio activo.</p>{% endif %}</div>
+{% endblock %}

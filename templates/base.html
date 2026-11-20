@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Merakié{% endblock %} · Merakié</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+<header class="cab">
+  <a class="logo" href="{{ url_for('acceso.inicio') }}">Merakié<small>belleza · bienestar · tú</small></a>
+  <nav>
+    {# El menú cambia según el tipo de usuario (lo arma app.py) #}
+    {% for texto, ruta in menu %}
+      <a href="{{ url_for(ruta) }}" class="{{ 'activo' if request.endpoint == ruta }}">{{ texto }}{% if contador.get(ruta) %}<span class="num">{{ contador[ruta] }}</span>{% endif %}</a>
+    {% endfor %}
+    {% if g.usuario and g.usuario.rol == 'cliente' %}<a href="{{ url_for('cliente.carrito') }}" class="{{ 'activo' if request.endpoint == 'cliente.carrito' }}">🛒 Carrito ({{ carrito_n }})</a>{% endif %}
+    {% if g.usuario %}
+      <form method="post" action="{{ url_for('acceso.salir') }}" style="display:inline">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <button class="mini peligro" title="Sesión de {{ g.usuario.nombre }}">Salir ({{ g.usuario.usuario }})</button>
+      </form>
+    {% endif %}
+  </nav>
+</header>
+<main>
+  {% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% for categoria, texto in mensajes %}<div class="msg {{ categoria }}">{{ texto }}</div>{% endfor %}
+  {% endwith %}
+  {% block contenido %}{% endblock %}
+</main>
+<div class="pie">Merakié · Proyecto académico · Los pagos son simulados y no se procesa dinero real.</div>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

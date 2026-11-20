@@ -1,0 +1,1 @@
+Aqui se crean sola la base de datos y los documentos. No compartas esta carpeta.

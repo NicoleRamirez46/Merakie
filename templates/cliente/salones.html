@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block titulo %}Salones{% endblock %}
+{% block contenido %}
+<h2>Salones y reserva de citas</h2>
+<p class="suave">Aquí solo aparecen salones <b>verificados</b> por el equipo de Merakié.</p>
+<form class="filtros" method="get">
+  <label>Ciudad<input name="ciudad" value="{{ ciudad }}" placeholder="Ej. Bogotá"></label>
+  <label>Categoría<select name="categoria"><option value="">Todas</option>{% for c in categorias %}<option {{ 'selected' if c == categoria }}>{{ c }}</option>{% endfor %}</select></label>
+  <button class="primario">Buscar</button>
+</form>
+<div class="rejilla">
+{% for x in lista %}{% set s = x.salon %}
+  <div class="tarjeta"><h3>{{ s.nombre_comercial }}</h3><p class="suave">📍 {{ s.direccion }}, {{ s.ciudad }}</p>
+    <p>{{ s.descripcion }}</p><p class="chico">{{ x.servicios|join(' · ') }}</p>
+    <a class="boton primario" href="{{ url_for('cliente.salon', pid=s.usuario_id) }}">Ver servicios y agendar</a></div>
+{% else %}<div class="vacio" style="grid-column:1/-1">Todavía no hay salones verificados con servicios publicados{% if ciudad or categoria %} para esa búsqueda{% endif %}.</div>
+{% endfor %}
+</div>
+{% endblock %}

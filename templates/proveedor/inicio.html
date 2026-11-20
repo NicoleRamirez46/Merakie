@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titulo %}Inicio{% endblock %}
+{% block contenido %}
+<h2>Hola, {{ g.usuario.nombre.split()[0] }} 👋</h2>
+<div class="tarjeta">
+  <div class="fila"><h3>Estado de tu cuenta</h3><span class="insignia {{ p.estado|estado_clase }}">{{ p.estado|estado_texto }}</span></div>
+  {% if p.estado == 'verificado' %}<p class="suave">Tu salón está publicado en Merakié y puede recibir citas.</p>{% endif %}
+  {% if p.estado == 'en_revision' %}<p class="suave">Estamos revisando tu información. Entra de nuevo en unos días.</p>{% endif %}
+  {% if p.estado == 'rechazado' %}<div class="msg aviso"><b>Motivo:</b> {{ p.motivo }}<br>Corrige lo indicado y vuelve a enviar tu cuenta a revisión.</div>{% endif %}
+  {% if p.estado == 'suspendido' %}<div class="msg error"><b>Motivo:</b> {{ p.motivo }}</div>{% endif %}
+  {% if p.estado in ('pendiente_documentos', 'rechazado') %}
+  <ul class="lista-check">
+    <li>{{ '✅' if lista.docs else '⬜' }} Subir el RUT y {{ 'el certificado de Cámara de Comercio' if pide == 'camara_comercio' else 'la cédula del titular' }} <a href="{{ url_for('proveedor.documentos') }}">Ir a documentos</a></li>
+    <li>{{ '✅' if lista.servicios else '⬜' }} Registrar al menos un servicio <a href="{{ url_for('proveedor.servicios') }}">Ir a servicios</a></li>
+    <li>{{ '✅' if lista.horario else '⬜' }} Definir tu horario de atención <a href="{{ url_for('proveedor.horarios') }}">Ir a horarios</a></li>
+  </ul>
+  <form method="post" action="{{ url_for('proveedor.enviar_revision') }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <button class="primario" {{ 'disabled' if not (lista.docs and lista.servicios and lista.horario) }}>Enviar a revisión</button></form>
+  {% endif %}
+</div>
+<div class="rejilla">
+  <div class="tarjeta kpi"><div class="n">{{ hoy_n }}</div><div class="l">Citas de hoy</div></div>
+  <div class="tarjeta kpi"><div class="n">{{ pendientes }}</div><div class="l">Por confirmar</div></div>
+  <div class="tarjeta kpi"><div class="n">{{ mes_n }}</div><div class="l">Atendidas este mes</div></div>
+  <div class="tarjeta kpi"><div class="n">{{ mes_ingresos|pesos }}</div><div class="l">Ingresos del mes (citas completadas)</div></div>
+</div>
+{% endblock %}

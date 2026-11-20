@@ -1,0 +1,82 @@
+# 02-backend.yaml  ·  LOGICA DE LA PLATAFORMA (Flask)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: merakie-backend
+  labels: {app: merakie, capa: backend}
+  annotations:
+    # Cuando termina una construccion nueva, OpenShift actualiza la imagen solo
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"merakie-backend:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"backend\")].image"}]'
+spec:
+  replicas: 1                          # SIEMPRE 1: SQLite no admite varios pods escribiendo
+  strategy:
+    type: Recreate                     # apaga el viejo antes de encender el nuevo (el disco es de uno)
+  selector:
+    matchLabels: {app: merakie, capa: backend}
+  template:
+    metadata:
+      labels: {app: merakie, capa: backend}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: backend
+          image: merakie-backend:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: MERAKIE_DATOS
+              value: /datos
+            - name: MERAKIE_PROXY
+              value: "1"
+            - name: MERAKIE_HTTPS
+              value: "1"
+            - name: MERAKIE_CODIGO_ADMIN        # viene del Secret, no esta escrito aqui
+              valueFrom:
+                secretKeyRef: {name: merakie-secretos, key: MERAKIE_CODIGO_ADMIN}
+          volumeMounts:
+            - {name: datos, mountPath: /datos}
+          readinessProbe:
+            httpGet: {path: /, port: 5000}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /, port: 5000}
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: 500m, memory: 384Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+      volumes:
+        - name: datos
+          persistentVolumeClaim: {claimName: merakie-datos}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: merakie-backend
+  labels: {app: merakie, capa: backend}
+spec:
+  selector: {app: merakie, capa: backend}
+  ports:
+    - {port: 5000, targetPort: 5000}
+---
+# Solo el frontend puede hablar con el backend (nadie mas dentro del cluster)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-solo-desde-frontend
+spec:
+  podSelector:
+    matchLabels: {app: merakie, capa: backend}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: {app: merakie, capa: frontend}
+      ports:
+        - {port: 5000}

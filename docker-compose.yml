@@ -1,0 +1,72 @@
+# docker-compose.yml  ·  LAS TRES CAPAS DE MERAKIE EN UN SOLO ARCHIVO
+#
+#   Navegador --> [ frontend (nginx) ] --> [ backend (Flask) ] --> [ base_datos (SQLite) ]
+#
+# Para encender todo:   docker compose up --build -d
+# Para apagar todo:     docker compose down          (los datos NO se borran)
+# Ver en el navegador:  http://localhost:8080
+#
+# Antes de usarlo, copia .env.ejemplo a .env y cambia los valores.
+
+name: merakie
+
+services:
+
+  # ------------------------------------------------------------------
+  # 1) FRONTEND: lo que ve la persona. nginx entrega los archivos
+  #    estaticos (estilos.css, app.js) y pasa lo demas al backend.
+  # ------------------------------------------------------------------
+  frontend:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"                       # puerto del computador : puerto del contenedor
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro   # reglas de nginx (solo lectura)
+      - ./static:/usr/share/nginx/html/static:ro         # CSS y JavaScript (solo lectura)
+    depends_on:
+      backend:
+        condition: service_healthy      # nginx espera a que el backend este listo
+    restart: unless-stopped
+
+  # ------------------------------------------------------------------
+  # 2) BACKEND: la logica en Python (Flask). Reservas, pagos, fraude,
+  #    roles, contrasenas cifradas. Se construye con el Dockerfile.
+  # ------------------------------------------------------------------
+  backend:
+    build: .
+    environment:
+      MERAKIE_DATOS: /datos                              # donde guarda la base y los documentos
+      MERAKIE_CODIGO_ADMIN: ${MERAKIE_CODIGO_ADMIN:?Define MERAKIE_CODIGO_ADMIN en el archivo .env}
+      MERAKIE_PROXY: "1"                                 # leer la IP real detras de nginx
+      MERAKIE_HTTPS: ${MERAKIE_HTTPS:-0}                 # 1 solo cuando se publique con https
+    volumes:
+      - datos_merakie:/datos                             # la base de datos vive en este volumen
+    expose:
+      - "5000"                                           # solo visible para nginx, NO para internet
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:5000/')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # ------------------------------------------------------------------
+  # 3) BASE DE DATOS: SQLite es un archivo (merakie.db), no un servidor.
+  #    Este contenedor solo sirve para CONSULTARLA con seguridad:
+  #      docker compose run --rm base_datos
+  #    Abre la consola SQL sobre el mismo volumen que usa el backend.
+  # ------------------------------------------------------------------
+  base_datos:
+    image: keinos/sqlite3:latest
+    profiles: ["consulta"]              # no se enciende solo; se llama cuando se necesita
+    volumes:
+      - datos_merakie:/datos:ro         # ro = solo lectura: nadie altera la evidencia por error
+    working_dir: /datos
+    entrypoint: ["sqlite3", "-header", "-column", "/datos/merakie.db"]
+    stdin_open: true
+    tty: true
+
+# Volumen con nombre: Docker lo conserva aunque borres los contenedores.
+volumes:
+  datos_merakie:

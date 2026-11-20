@@ -1,0 +1,13 @@
+# 01-base-de-datos.yaml  ·  ALMACENAMIENTO DE LA BASE DE DATOS
+# SQLite es un archivo (merakie.db). Este "disco" persistente lo guarda junto con los
+# documentos de los proveedores, y NO se borra aunque se reinicie la aplicacion.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: merakie-datos
+  labels: {app: merakie, capa: base-de-datos}
+spec:
+  accessModes: [ReadWriteOnce]         # un solo pod escribe a la vez (lo que SQLite necesita)
+  resources:
+    requests:
+      storage: 1Gi

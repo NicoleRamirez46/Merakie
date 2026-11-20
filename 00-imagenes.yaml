@@ -1,0 +1,43 @@
+# 00-imagenes.yaml  ·  CONSTRUIR LAS DOS IMAGENES DENTRO DE OPENSHIFT
+# Envias tu carpeta con "oc start-build" y OpenShift arma las imagenes (no necesitas Docker).
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: merakie-backend
+  labels: {app: merakie}
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: merakie-frontend
+  labels: {app: merakie}
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: merakie-backend
+  labels: {app: merakie}
+spec:
+  source:
+    type: Binary                       # el codigo se envia desde tu computador
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile.openshift
+  output:
+    to: {kind: ImageStreamTag, name: "merakie-backend:latest"}
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: merakie-frontend
+  labels: {app: merakie}
+spec:
+  source:
+    type: Binary
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile.frontend
+  output:
+    to: {kind: ImageStreamTag, name: "merakie-frontend:latest"}

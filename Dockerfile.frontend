@@ -1,0 +1,11 @@
+# Dockerfile.frontend  ·  FRONTEND (nginx) PARA RED HAT OPENSHIFT
+FROM registry.access.redhat.com/ubi9/nginx-124
+
+USER 0
+COPY nginx.openshift.conf /etc/nginx/nginx.conf
+COPY static /opt/app-root/static
+# Permisos para el usuario aleatorio de OpenShift (pertenece al grupo 0)
+RUN chgrp -R 0 /opt/app-root/static && chmod -R g=rX /opt/app-root/static && chmod g+r /etc/nginx/nginx.conf
+USER 1001
+EXPOSE 8080
+CMD ["nginx", "-g", "daemon off;"]

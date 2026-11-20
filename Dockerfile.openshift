@@ -1,0 +1,17 @@
+# Dockerfile.openshift  ·  BACKEND PARA RED HAT OPENSHIFT
+# Usa la imagen oficial de Red Hat (UBI 9 + Python 3.12). OpenShift ejecuta los
+# contenedores con un usuario aleatorio sin privilegios, por eso no usamos "root".
+FROM registry.access.redhat.com/ubi9/python-312
+
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /opt/app-root/src
+
+COPY requisitos.txt .
+RUN pip install --no-cache-dir -r requisitos.txt gunicorn
+
+COPY . .
+
+USER 1001
+EXPOSE 5000
+# SQLite escribe de a uno: 1 proceso con 4 hilos es suficiente y seguro
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--threads", "4", "app:app"]

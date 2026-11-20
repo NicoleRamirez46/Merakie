@@ -1,0 +1,60 @@
+# 03-frontend.yaml  ·  LO QUE VE LA PERSONA (nginx) + DIRECCION PUBLICA CON HTTPS
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: merakie-frontend
+  labels: {app: merakie, capa: frontend}
+  annotations:
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"merakie-frontend:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"frontend\")].image"}]'
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: merakie, capa: frontend}
+  template:
+    metadata:
+      labels: {app: merakie, capa: frontend}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: frontend
+          image: merakie-frontend:latest
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet: {path: /static/estilos.css, port: 8080}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /static/estilos.css, port: 8080}
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests: {cpu: 50m, memory: 32Mi}
+            limits: {cpu: 200m, memory: 128Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: merakie-frontend
+  labels: {app: merakie, capa: frontend}
+spec:
+  selector: {app: merakie, capa: frontend}
+  ports:
+    - {port: 8080, targetPort: 8080}
+---
+# La "Route" es la direccion publica. OpenShift pone el certificado https solo.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: merakie
+  labels: {app: merakie}
+spec:
+  to: {kind: Service, name: merakie-frontend}
+  port: {targetPort: 8080}
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect    # http se redirige a https
